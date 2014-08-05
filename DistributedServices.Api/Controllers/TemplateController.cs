@@ -1,12 +1,11 @@
 ﻿using Application.Services.Templates;
+using DistributedServices.Api.Helpers;
 using DistributedServices.Entities;
 using Infrastructure.Common.Caching;
 using Infrastructure.Common.Mappings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Cors;
 
@@ -34,30 +33,34 @@ namespace DistributedServices.Api.Controllers
         }
 
         [Route("templates")]
-        public List<TemplateDto> GetAll()
+        public Response<List<TemplateDto>> GetAll()
         {
             var items = _templateService.GetAll();
 
-            return _mapper.Map(items);
+            return items.Any()
+                    ? ApiResponse<List<TemplateDto>>.Success(_mapper.Map(items))
+                    : ApiResponse<List<TemplateDto>>.NotFound("No templates exist.");
         }
 
         [Route("templates/{id}")]
-        public TemplateDto GetBy(int id)
+        public Response<TemplateDto> GetBy(int id)
         {
             var item = _cache.Get(string.Format(TemplateCacheIdFormat, id));
 
             if (item != null)
-                return item;
+                return ApiResponse<TemplateDto>.Success(item);
 
-            item = _mapper.Map(_templateService.GetBy(i => i.Id == id));
+            var mappedItem = _mapper.Map(_templateService.GetBy(i => i.Id == id));
 
-            return item;
+            return mappedItem != null
+                    ? ApiResponse<TemplateDto>.Success(mappedItem)
+                    : ApiResponse<TemplateDto>.NotFound(string.Format("No template with id {0} can be found.", id));
         }
 
         [Route("templates")]
-        public TemplateDto Post(TemplateDto hypermedia, string clientToken)
+        public Response<TemplateDto> Post(TemplateDto template, string clientToken)
         {
-            var mappedItem = _mapper.Map(hypermedia);
+            var mappedItem = _mapper.Map(template);
 
             var addedItem = _templateService.Add(mappedItem);
 
@@ -65,12 +68,17 @@ namespace DistributedServices.Api.Controllers
 
             _cache.Add(mappedAddedItem, string.Format(TemplateCacheIdFormat, addedItem.Id));
 
-            return mappedAddedItem;
+            return ApiResponse<TemplateDto>.Success(mappedAddedItem);
         }
 
         [Route("templates/{id}")]
-        public TemplateDto Put(string clientToken, int id, TemplateDto item)
+        public Response<TemplateDto> Put(int id, TemplateDto item)
         {
+            var itemToUpdate = _templateService.GetBy(i => i.Id == id);
+
+            if (itemToUpdate == null)
+                return ApiResponse<TemplateDto>.BadRequest(string.Format("No template with id {0} can be found.", id));
+
             item.Id = id;
 
             var mappedItem = _mapper.Map(item);
@@ -79,19 +87,24 @@ namespace DistributedServices.Api.Controllers
 
             var mappedUpdatedItem = _mapper.Map(updatedItem);
 
-            _cache.Update(mappedUpdatedItem, string.Format(TemplateCacheIdFormat, clientToken, mappedUpdatedItem.Id));
+            _cache.Update(mappedUpdatedItem, string.Format(TemplateCacheIdFormat, mappedUpdatedItem.Id));
 
-            return mappedUpdatedItem;
+            return ApiResponse<TemplateDto>.Success(mappedUpdatedItem);
         }
 
         [Route("templates/{id}")]
-        public TemplateDto Delete(string clientToken, int id)
+        public Response<TemplateDto> Delete(int id)
         {
+            var itemToDelete = _templateService.GetBy(i => i.Id == id);
+
+            if (itemToDelete == null)
+                return ApiResponse<TemplateDto>.BadRequest(string.Format("No template with id {0} can be found.", id));
+
             var deletedItem = _templateService.Delete(id);
 
-            _cache.Remove(string.Format(TemplateCacheIdFormat, clientToken, deletedItem.Id));
+            _cache.Remove(string.Format(TemplateCacheIdFormat, id));
 
-            return _mapper.Map(deletedItem);
+            return ApiResponse<TemplateDto>.Success(_mapper.Map(deletedItem));
         }
     }
 }
