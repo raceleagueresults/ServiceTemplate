@@ -41,8 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConfiguration.cs" />
+    <Compile Include="AuthorizationConfiguration.cs" />
     <Compile Include="IApiConfiguration.cs" />
     <Compile Include="CacheConfiguration.cs" />
+    <Compile Include="IAuthorizationConfiguration.cs" />
     <Compile Include="ICacheConfiguration.cs" />
     <Compile Include="ILoggingConfiguration.cs" />
     <Compile Include="LoggingConfiguration.cs" />

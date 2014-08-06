@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Infrastructure.Common.Configuration;
+using Microsoft.Practices.Unity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,22 +10,27 @@ namespace DistributedServices.Api.Filters
 {
     public class BasicAuthorizationFilter : AuthorizationFilterAttribute
     {
+        public IAuthorizationConfiguration AuthorizationConfiguration = new AuthorizationConfiguration();
+
         public override void OnAuthorization(System.Web.Http.Controllers.HttpActionContext actionContext)
         {
-            var user = string.Empty;
-
-            var password = string.Empty;
-
-            var auth = actionContext.Request.Headers.Authorization;
-
-            if (auth != null && auth.Scheme == "Basic")
+            if (AuthorizationConfiguration.BasicAuthorizationEnabled)
             {
-                user = auth.Parameter.Substring(0, auth.Parameter.IndexOf(":"));
+                var user = string.Empty;
 
-                password = auth.Parameter.Substring(auth.Parameter.IndexOf(":") + 1, auth.Parameter.Length - auth.Parameter.IndexOf(":") - 1);
+                var password = string.Empty;
+
+                var auth = actionContext.Request.Headers.Authorization;
+
+                if (auth != null && auth.Scheme == "Basic")
+                {
+                    user = auth.Parameter.Substring(0, auth.Parameter.IndexOf(":"));
+
+                    password = auth.Parameter.Substring(auth.Parameter.IndexOf(":") + 1, auth.Parameter.Length - auth.Parameter.IndexOf(":") - 1);
+                }
+
+                base.OnAuthorization(actionContext);
             }
-            
-            base.OnAuthorization(actionContext);
         }
     }
 }

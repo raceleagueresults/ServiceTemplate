@@ -55,6 +55,7 @@ namespace DistributedServices.Api.App_Start
             container.RegisterType<ICache<TemplateDto>, MemoryCache<TemplateDto>>(new Interceptor<InterfaceInterceptor>(), new InterceptionBehavior<LoggingInterceptBehavior>());
             container.RegisterType<ICacheConfiguration, CacheConfiguration>(new Interceptor<InterfaceInterceptor>(), new InterceptionBehavior<LoggingInterceptBehavior>());
             container.RegisterType<ILoggingConfiguration, LoggingConfiguration>();
+            container.RegisterType<IAuthorizationConfiguration, AuthorizationConfiguration>();
             container.RegisterType<IAppLogger, AppLogger>();
             container.RegisterType<ITemplateService, TemplateService>(new Interceptor<InterfaceInterceptor>(), new InterceptionBehavior<LoggingInterceptBehavior>());
             container.RegisterType<ITemplateRepository, MockTemplateRepository>();
