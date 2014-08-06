@@ -1,4 +1,5 @@
 ﻿using Application.Services.Templates;
+using DistributedServices.Api.Filters;
 using DistributedServices.Api.Helpers;
 using DistributedServices.Entities;
 using Infrastructure.Common.Caching;
@@ -11,6 +12,7 @@ using System.Web.Http.Cors;
 
 namespace DistributedServices.Api.Controllers
 {
+    [BasicAuthorizationFilter]
     [EnableCors("*", "*", "*")]
     [RoutePrefix("api")]
     public class TemplateController : ApiController
