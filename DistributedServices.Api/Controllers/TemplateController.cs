@@ -25,6 +25,7 @@ namespace DistributedServices.Api.Controllers
 
         private const string TemplateCacheIdFormat = "template-{0}";
 
+        // Test for jenkins
         public TemplateController(ITemplateService templateService, IMapper<Domain.Entities.Template, DistributedServices.Entities.TemplateDto> mapper, ICache<DistributedServices.Entities.TemplateDto> cache)
         {
             _templateService = templateService;
