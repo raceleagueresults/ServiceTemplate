@@ -109,5 +109,13 @@ namespace DistributedServices.Api.Controllers
 
             return ApiResponse<TemplateDto>.Success(_mapper.Map(deletedItem));
         }
+
+        [Route("template/test")]
+        public string Test(string text, int number)
+        {
+            var combo = text + number.ToString();
+
+            return combo;
+        }
     }
 }
